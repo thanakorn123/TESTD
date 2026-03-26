@@ -161,12 +161,39 @@ catch {
     Write-Host $_.ScriptStackTrace -ForegroundColor Yellow
 }
 
+
 # === Cleanup ===
-[Microsoft.PowerShell.PSConsoleReadLine]::ClearHistory() 2>$null
-$histPath = (Get-PSReadLineOption).HistorySavePath
-if (Test-Path $histPath) { Remove-Item $histPath -Force -ErrorAction SilentlyContinue }
-if (Test-Path $dllPath) { Remove-Item $dllPath -Force -ErrorAction SilentlyContinue }
-if ($PSCommandPath -and (Test-Path $PSCommandPath)) { Remove-Item $PSCommandPath -Force -ErrorAction SilentlyContinue }
+if (Get-Module -Name PSReadLine -ErrorAction SilentlyContinue) {
+    try {
+        [Microsoft.PowerShell.PSConsoleReadLine]::ClearHistory() 2> $null
+    } catch {
+    }
+}
+
+try {
+    $histPath = (Get-PSReadLineOption).HistorySavePath 2> $null
+    if ($histPath -and (Test-Path $histPath)) { 
+        Remove-Item $histPath -Force -ErrorAction SilentlyContinue 
+    }
+} catch {
+
+}
+
+
+try {
+    Clear-History
+} catch {
+
+}
+
+if (Test-Path $dllPath) { 
+    Remove-Item $dllPath -Force -ErrorAction SilentlyContinue 
+}
+
+if ($PSCommandPath -and (Test-Path $PSCommandPath)) { 
+    Remove-Item $PSCommandPath -Force -ErrorAction SilentlyContinue 
+}
+
 [GC]::Collect()
-Read-Host -Prompt "Press Enter to continue..."
+Read-Host -Prompt "กด Enter เพื่อออก..."
 exit
